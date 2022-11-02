@@ -51,7 +51,7 @@
             Otherwise, returns false.
 
         ThreadPool:Join(yield: boolean?): boolean
-            Checks if all threads have completed execution. If yield is true, teh function will yield until all threads are finished executing.
+            Checks if all threads have completed execution. If yield is true, the function will yield until all threads are finished executing.
             Returns a boolean indicating if the threads have finished execution (always true when yield is true). NOTE: Return values cannot
             be retrieved from a ThreadPool.
 
