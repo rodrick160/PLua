@@ -78,8 +78,8 @@ export type ThreadPool = ThreadPool.ThreadPool
 
 local runService = game:GetService("RunService")
 
-local function newActorScript(parent: Instance): BaseScript
-    local actor = Instance.new("Actor", parent)
+local function newActorScript(): BaseScript
+    local actor = Instance.new("Actor", if runService:IsServer() then game.ServerScriptService else game.Players.LocalPlayer.PlayerScripts)
     local actorInit = if runService:IsServer() then script.ActorInitServer:Clone() else script.ActorInitClient:Clone()
     actorInit.Parent = actor
     actorInit.Enabled = true
@@ -89,8 +89,7 @@ end
 --\\ Public //--
 
 function PLua.CreateThread(module: ModuleScript, ...: any...): Thread
-    local callingScript = getfenv(2).script
-    local actorInit = newActorScript(callingScript)
+    local actorInit = newActorScript()
     module = module:Clone()
     module.Name = "ActorThread"
     module.Parent = actorInit
@@ -102,9 +101,8 @@ end
 
 function PLua.CreateThreadPool(n: number): ThreadPool
     local threads = table.create(n)
-    local callingScript = getfenv(2).script
     for i = 1, n do
-        local actorInit = newActorScript(callingScript)
+        local actorInit = newActorScript()
         local thread = Thread.new(actorInit)
         threads[i] = thread
     end
