@@ -1,67 +1,51 @@
 -- PLua
 -- Quantum Maniac
--- Nov 1 2022
+-- Jan 10 2024
 
 --[[
-    This module provides parallel Luau accessibility within module-oriented script frameworks.
-    Parallel execution can be done either by a single thread at a time, or by creating a pool of threads at once and
-    assigning tasks to be executed by the first available pooled thread.
+    PLua is a Roblox multithreading library created with the intent to provide a simple, effective, and efficient interface for parallel computation.
 
-    PLua can be used to create two types of objects: Threads and ThreadPools.
-    Threads are a single thread of parallel execution, and ThreadPools represent a collection of threads being used
-    to achieve some collective task.
+    NOTE: This module uses the term "thread" differently than conventional Lua contexts. A Lua thread is technically a coroutine, not a true thread.
+          While coroutines and threads both refer to an independent line of code execution with its own stack, local variables, and instruction pointer,
+          they are different in that a coroutine is still executed serially, by a single core of the CPU, as scheduled by the task scheduler. A thread,
+          meanwhile, has the ability to (but is not guaranteed to) run in a separate CPU core, parallel with other threads.
+          "Thread" in this module will be used in the context of multithreading.
 
-    The function body of a thread is read from a module script. This module script is passed as a constructor argument,
-    which will then be cloned into an actor for execution. The script is expected to have a module.Run(...) function, which
-    can take any parameters and return any values. NOTE: Tables will be passed by value, not by reference, when passed as an
-    argument to a thread. Table metatables will also be stripped when sent to a thread. This is by technical limitation.
-    However, instances *can* be passed by value.
+    NOTE: "Dispatching" a thread means the same thing as "running" the thread.
 
-    Constructors:
-    PLua.CreateThread(module: ModuleScript, ...: any...): Thread
-        Creates a single Thread of the given module, and immidiately begins executing it in parallel with the parameters given in ...
-        Returns a Thread object.
+    PLua allows the user to create, dispatch, and join threads, either on their own or in a thread pool. Threads are provided with a module upon creation,
+    which contains the code to be executed by the thread. In the case of a thread pool, all threads in the pool are given the same module. Threads and
+    thread pools can then be dispatched to execute their code, and optionally (but usually) joined back into serial execution. If the thread returns one
+    or more values, they can be retrieved by joining them.
 
-    PLua.CreateThreadPool(n: number): ThreadPool
-        Creates a ThreadPool with n Threads. Threads do not execute anything until given a task to complete.
-        Returns a ThreadPool object.
+    Modules given to threads are expected to have a Run(...) method. This function will be called when the thread is dispatched. If the thread is part of
+	a thread pool, it will be assigned a thread index; a number from 1 to n where n is the number of threads in the thread pool. Upon creation of the thread
+	pool, each thread's module will be required, and the thread index will be assigned to the ThreadIndex field of the module.
+    Example use case:
 
-    Thread:
-        Thread:Run(...: any...): boolean
-            Runs the thread again with the same module as before. Arguments passed into ... will be passed to the thread function.
-            Returns a boolean indicating if thread execution began successfully. This will be false if the thread is already running.
+    ```lua
+        local TerrainGenerator = {}
 
-        Thread:Join(yield: boolean?): (boolean, any...)
-            Checks if the thread has completed execution so that it can be joined back into serial execution. If yield is true, the function
-            will yield until the thread is finished executing.
-            Returns a boolean indicating if the thread has finished execution (always true when yield is true), followed by any values
-            returned by the thread.
+        function TerrainGenerator.Run(width: number)
+            local index = TerrainGenerator.ThreadIndex
+            local chunk = Vector2.new(
+                index % width,
+                math.floor(index / width)
+            )
 
-        Thread:Destroy(): boolean
-            Destroys a thread and frees its resources. This call will fail if the thread is currently running.
-            Returns a boolean indicating if the thread was successfully destroyed.
+            -- Generate the chunk at the calculated position.
+        end
 
-        Thread:Status(): string
-            Returns "running" if the thread is currently in execution, or "suspended" if not.
+        return TerrainGenerator
+    ```
 
-    ThreadPool:
-        ThreadPool:Run(module: ModuleScript, ...: any...): boolean
-            Attempts to run the given module on the first available thread.
-            If an available thread is found, it will begin executing immediately with the parameters passed in ..., and returns true.
-            Otherwise, returns false.
-
-        ThreadPool:Join(yield: boolean?): boolean
-            Checks if all threads have completed execution. If yield is true, the function will yield until all threads are finished executing.
-            Returns a boolean indicating if the threads have finished execution (always true when yield is true). NOTE: Return values cannot
-            be retrieved from a ThreadPool.
-
-        ThreadPool:Destroy(): boolean
-            Attempts to destroy all Threads in the ThreadPool. If any Thread is currently executing, no threads will be destroyed and the function returns false.
-            Otherwise, if all Threads are suspended, they will all be destroyed and the function returns true.
+    WARNING: Thread and ThreadPool objects do not automatically clean themselves; call :Destroy() on these objects if they are no longer used.
 ]]
 
 --\\ Dependencies //--
 
+local ActorInit = require(script.ActorInit)
+local SharedTypes = require(script.SharedTypes)
 local Thread = require(script.Thread)
 local ThreadPool = require(script.ThreadPool)
 
@@ -74,39 +58,81 @@ local PLua = {}
 export type Thread = Thread.Thread
 export type ThreadPool = ThreadPool.ThreadPool
 
+export type SharedTable = SharedTypes.SharedTable
+
 --\\ Private //--
 
-local runService = game:GetService("RunService")
-
-local function newActorScript(): BaseScript
-    local actor = Instance.new("Actor", if runService:IsServer() then game.ServerScriptService else game.Players.LocalPlayer.PlayerScripts)
-    local actorInit = if runService:IsServer() then script.ActorInitServer:Clone() else script.ActorInitClient:Clone()
+local function newActorScript(parent: Instance): Actor
+    local actor = Instance.new("Actor", parent)
+    local actorInit = ActorInit.GetActorInit()
     actorInit.Parent = actor
     actorInit.Enabled = true
-    return actorInit
+    return actor
 end
 
 --\\ Public //--
 
-function PLua.CreateThread(module: ModuleScript, ...: any...): Thread
-    local actorInit = newActorScript()
-    module = module:Clone()
-    module.Name = "ActorThread"
-    module.Parent = actorInit
-    local thread = Thread.new(actorInit)
-    thread:Run(...)
+--[[
+    Creates a single thread.
+
+    Example usage:
+    ```lua
+    local terrainGenerator = script.TerrainGenerator
+    local thread = PLua.CreateThread(terrainGenerator)
+    thread:Run()
+    thread:Join(true)
+    thread:Destroy()
+    ```
+
+    Parameters:
+    ModuleScript `module`:
+        The module to be executed in the thread.
+        See the top of this document for more information on thread modules.
+
+    Returns:
+        A newly created Thread object.
+]]
+function PLua.CreateThread(module: ModuleScript): Thread
+    local callingScript = getfenv(2).script
+    local actor = newActorScript(callingScript)
+    local thread = Thread._new(actor, module)
 
     return thread
 end
 
-function PLua.CreateThreadPool(n: number): ThreadPool
+--[[
+    Creates a thread pool with `n` threads.
+
+    Example usage:
+    ```lua
+    local width = 5
+    local length = 10
+    local terrainGenerator = script.TerrainGenerator
+    local threadPool = PLua.CreateThreadPool(width * length, terrainGenerator)
+    threadPool:Run(width)
+    threadPool:JoinAll(true)
+    threadPool:Destroy()
+    ```
+
+    Parameters:
+    number `n`: The number of threads to create.
+    ModuleScript `module`:
+        The module to be executed in the threads.
+        See the top of this document for more information on thread modules.
+
+    Returns:
+        A newly created ThreadPool object.
+]]
+function PLua.CreateThreadPool(n: number, module: ModuleScript): ThreadPool
     local threads = table.create(n)
+    local callingScript = getfenv(2).script
     for i = 1, n do
-        local actorInit = newActorScript()
-        local thread = Thread.new(actorInit)
+        local actor = newActorScript(callingScript)
+        local thread = Thread._new(actor, module, i)
         threads[i] = thread
     end
-    local threadPool = ThreadPool.new(threads)
+    local threadPool = ThreadPool._new(threads)
+
     return threadPool
 end
 
