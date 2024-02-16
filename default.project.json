@@ -1,0 +1,6 @@
+{
+    "name": "plua",
+    "tree": {
+        "$path": "src"
+    }
+}

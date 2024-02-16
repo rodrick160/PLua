@@ -39,7 +39,6 @@ export type Thread = typeof(Thread) & {
 }
 
 type SharedTable = SharedTypes.SharedTable
-SharedTable = SharedTable :: SharedTable
 
 --\\ Private //--
 

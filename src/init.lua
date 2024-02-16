@@ -63,7 +63,8 @@ export type SharedTable = SharedTypes.SharedTable
 --\\ Private //--
 
 local function newActorScript(parent: Instance): Actor
-    local actor = Instance.new("Actor", parent)
+    local actor = Instance.new("Actor")
+	actor.Parent = parent
     local actorInit = ActorInit.GetActorInit()
     actorInit.Parent = actor
     actorInit.Enabled = true
