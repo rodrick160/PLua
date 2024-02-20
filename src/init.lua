@@ -1,3 +1,4 @@
+local RunService = game:GetService("RunService")
 -- PLua
 -- Quantum Maniac
 -- Jan 10 2024
@@ -62,9 +63,13 @@ export type SharedTable = SharedTypes.SharedTable
 
 --\\ Private //--
 
-local function newActorScript(parent: Instance): Actor
+local actorFolder = Instance.new("Folder")
+actorFolder.Name = "Actors"
+actorFolder.Parent = if RunService:IsClient() then game.Players.LocalPlayer.PlayerScripts else game.ServerScriptService
+
+local function newActorScript(): Actor
     local actor = Instance.new("Actor")
-	actor.Parent = parent
+	actor.Parent = actorFolder
     local actorInit = ActorInit.GetActorInit()
     actorInit.Parent = actor
     actorInit.Enabled = true
@@ -94,8 +99,7 @@ end
         A newly created Thread object.
 ]]
 function PLua.CreateThread(module: ModuleScript): Thread
-    local callingScript = getfenv(2).script
-    local actor = newActorScript(callingScript)
+    local actor = newActorScript()
     local thread = Thread._new(actor, module)
 
     return thread
@@ -126,9 +130,8 @@ end
 ]]
 function PLua.CreateThreadPool(n: number, module: ModuleScript): ThreadPool
     local threads = table.create(n)
-    local callingScript = getfenv(2).script
     for i = 1, n do
-        local actor = newActorScript(callingScript)
+        local actor = newActorScript()
         local thread = Thread._new(actor, module, i)
         threads[i] = thread
     end
