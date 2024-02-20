@@ -1,9 +1,9 @@
 [package]
 name = "rodrick160/plua"
 description = "Provides parallel Luau accessibility within module-oriented script frameworks"
-version = "1.0.1"
+version = "1.0.2"
 license = "MPL 2.0"
 authors = ["Sebastian Seifert"]
 realm = "shared"
 registry = "https://github.com/UpliftGames/wally-index"
-exclude = [".gitignore", ".vscode"]
+include = ["src", "LICENSE"]

@@ -10,14 +10,22 @@ local RunService = game:GetService("RunService")
 
 local ActorInit = {}
 
+--\\ Private //--
+
+local actorFolder = Instance.new("Folder")
+actorFolder.Name = "Actors"
+actorFolder.Parent = if RunService:IsClient() then game.Players.LocalPlayer.PlayerScripts else game.ServerScriptService
+
+local actorInit = if RunService:IsClient() then script.ActorInitClient else script.ActorInitServer
+
 --\\ Public //--
 
-function ActorInit.GetActorInit(): BaseScript
-	if RunService:IsServer() then
-		return script.ActorInitServer:Clone()
-	else
-		return script.ActorInitClient:Clone()
-	end
+function ActorInit.GetActorFolder(): Folder
+	return actorFolder
+end
+
+function ActorInit.GetActorInit(): Script | LocalScript
+	return actorInit:Clone()
 end
 
 --\\ Return //--

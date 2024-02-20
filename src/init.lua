@@ -1,9 +1,19 @@
-local RunService = game:GetService("RunService")
 -- PLua
 -- Quantum Maniac
 -- Jan 10 2024
 
 --[[
+	__________.____
+	\______   \    |    __ _______
+	 |     ___/    |   |  |  \__  \
+	 |    |   |    |___|  |  // __ \_
+	 |____|   |_______ \____/(____  /
+	                  \/          \/
+
+	==========================================
+		https://github.com/rodrick160/PLua
+	==========================================
+
     PLua is a Roblox multithreading library created with the intent to provide a simple, effective, and efficient interface for parallel computation.
 
     NOTE: This module uses the term "thread" differently than conventional Lua contexts. A Lua thread is technically a coroutine, not a true thread.
@@ -63,13 +73,9 @@ export type SharedTable = SharedTypes.SharedTable
 
 --\\ Private //--
 
-local actorFolder = Instance.new("Folder")
-actorFolder.Name = "Actors"
-actorFolder.Parent = if RunService:IsClient() then game.Players.LocalPlayer.PlayerScripts else game.ServerScriptService
-
 local function newActorScript(): Actor
     local actor = Instance.new("Actor")
-	actor.Parent = actorFolder
+	actor.Parent = ActorInit.GetActorFolder()
     local actorInit = ActorInit.GetActorInit()
     actorInit.Parent = actor
     actorInit.Enabled = true
