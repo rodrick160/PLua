@@ -1,7 +1,7 @@
 # Install
 ## Wally
 Installing with [Wally](https://github.com/UpliftGames/wally) is recommended.
-`rodrick160/plua@1.0.1`
+`rodrick160/plua@1.0.2`
 
 # Description
 PLua is a Roblox multithreading library created with the intent to provide a simple, effective, and efficient interface for parallel computation.
