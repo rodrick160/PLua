@@ -1,3 +1,5 @@
+![PLua logo](/logo/Small/PLua_Banner.png)
+
 # Thread
 Threads are an isolated line of code execution that can run in parallel to other threads.
 

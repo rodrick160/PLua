@@ -1,3 +1,5 @@
+![PLua logo](/logo/Small/PLua_Banner.png)
+
 # ThreadPool
 
 Thread pools are a collection of threads, all of which are identical except for their unique thread index.
