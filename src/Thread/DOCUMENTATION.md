@@ -16,15 +16,15 @@ Threads can be in one of three states:
 > [!TIP]
 > To create a Thread object, call [`PLua.CreateThread()`](/README.md#pluacreatethreadpooln-number-module-modulescript-threadpool).
 
-# Run
+## Run
 
-## Description
+### Description
 Dispatches the thread and begins code execution.
 
-## Parameters
+### Parameters
 - `...: any...` - A list of parameters to pass to the thread module's `Run()` function.
 
-## Return Value
+### Return Value
 Returns a boolean indicating if the thread was successfully dispatched.
 
 > [!IMPORTANT]
@@ -33,14 +33,14 @@ Returns a boolean indicating if the thread was successfully dispatched.
 > [!IMPORTANT]
 > If the thread is running, dispatching will fail.
 
-# Join
+## Join
 
-## Description
+### Description
 Attempts to join the thread back into serial execution.
 
-## Parameters
+### Parameters
 - `yield: boolean` (optional) - If true, yields until the thread is suspended.
-## Return Value
+### Return Value
 - A `boolean` flag indicating if the thread was successfully joined.
 - Any values returned from the thread module's `Run()` function.
 
@@ -48,24 +48,24 @@ Attempts to join the thread back into serial execution.
 > If the `yield` flag is enabled, the success flag will always be `true`.
 > The success flag will only be `false` if the `yield` flag is not enabled and the thread is not suspended.
 
-# Destroy
+## Destroy
 
-# Description
+## Description
 Attempts to destroy the thread and clean up its used memory.
 
-# Return Value
+## Return Value
 Returns a `boolean` flag indicating if destruction was successful.
 
 > [!CAUTION]
 > If the thread is running, destruction will fail.
 > If necessary, use [`Join(true)`](./DOCUMENTATION.md#join) to yield until destruction is permitted.
 
-# Status
+## Status
 
-## Description
+### Description
 Returns a string describing the current status of the thread.
 
-## Return Value
+### Return Value
 One of the following strings:
 - `"new"` - The thread has just been created and is initializing.
 - `"suspended"` - The thread is not currently running.

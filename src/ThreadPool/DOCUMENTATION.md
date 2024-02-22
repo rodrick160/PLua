@@ -5,15 +5,15 @@ Thread pools are a collection of threads, all of which are identical except for 
 > [!TIP]
 > To create a ThreadPool object, call [`PLua.CreateThreadPool()`](/README.md#pluacreatethreadmodule-modulescript-thread).
 
-# Run
+## Run
 
-## Description
+### Description
 Attempts to dispatch all threads in the thread pool.
 
-## Parameters
+### Parameters
 - `...: any...` - A list of parameters to pass to the thread modules' `Run()` function.
 
-## Return Value
+### Return Value
 Returns a boolean indicating if the threads were successfully dispatched.
 
 > [!IMPORTANT]
@@ -22,46 +22,46 @@ Returns a boolean indicating if the threads were successfully dispatched.
 > [!IMPORTANT]
 > If any thread is running, dispatching will fail for all threads.
 
-# JoinAll
+## JoinAll
 
-## Description
+### Description
 Attempts to join all threads in the pool back into serial execution.
 
-## Parameters
+### Parameters
 - `yield: boolean` (optional) - If true, yields until all threads are suspended.
 
-## Return Value
+### Return Value
 A `boolean` flag indicating if the threads were successfully joined.
 
 > [!TIP]
 > If the `yield` flag is enabled, the success flag will always be `true`.
 > The success flag will only be `false` if the `yield` flag is not enabled and a thread is not suspended.
 
-# JoinAtLeast
+## JoinAtLeast
 
-## Description
+### Description
 Attempts to join a minimum number of threads in the pool back into serial execution.
 
-## Parameters
+### Parameters
 - `n: number` - The minimum number of threads to be joined.
 - `yield: boolean` (optional) - If true, yields until the join requirements are met.
 
-## Return Value
+### Return Value
 A `boolean` flag indicating if the threads were successfully joined.
 
 > [!TIP]
 > If the `yield` flag is enabled, the success flag will always be `true`.
 > The success flag will only be `false` if the `yield` flag is not enabled and less than `n` threads are suspended.
 
-# GetJoinResult
+## GetJoinResult
 
-## Description
+### Description
 Returns any values returned by [`Thread:Join()`](/src/Thread/DOCUMENTATION.md#join), including the success flag.
 
-## Parameters
+### Parameters
 - `threadIndex: number` - Selects which thread in the pool to retrieve the return values of.
 
-## Return Value
+### Return Value
 - A `boolean` flag indicating if the thread is successfully joined.
 - Any values returned from the thread module's `Run()` function.
 
@@ -71,20 +71,20 @@ Returns any values returned by [`Thread:Join()`](/src/Thread/DOCUMENTATION.md#jo
 > [!CAUTION]
 > The behavior of calling `GetJoinResult()` after getting a `false` success flag from [`JoinAll()`](./DOCUMENTATION.md#joinall) or [`JoinAtLeast()`](./DOCUMENTATION.md#joinatleast) is undefined.
 
-# Size
+## Size
 
-## Description
+### Description
 Returns the number of threads contained in the thread pool.
 
-## Return Value
+### Return Value
 A `number` indicating the numebr of threads contained in the thread pool.
 
-# Destroy
+## Destroy
 
-# Description
+## Description
 Attempts to destroy the thread pool and all of its threads, and clean up their used memory.
 
-# Return Value
+## Return Value
 Returns a `boolean` flag indicating if destruction was successful.
 
 > [!CAUTION]
