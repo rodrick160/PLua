@@ -154,10 +154,10 @@ end
 --[[
 	# Destroy
 
-	# Description
+	## Description
 	Attempts to destroy the thread and clean up its used memory.
 
-	# Return Value
+	## Return Value
 	Returns a `boolean` flag indicating if destruction was successful.
 
 	> [!CAUTION]

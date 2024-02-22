@@ -81,10 +81,10 @@ A `number` indicating the numebr of threads contained in the thread pool.
 
 ## Destroy
 
-## Description
+### Description
 Attempts to destroy the thread pool and all of its threads, and clean up their used memory.
 
-## Return Value
+### Return Value
 Returns a `boolean` flag indicating if destruction was successful.
 
 > [!CAUTION]
