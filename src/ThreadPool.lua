@@ -8,7 +8,6 @@
 
 --\\ Dependencies //--
 
-local SharedTypes = require(script.Parent.SharedTypes)
 local Thread = require(script.Parent.Thread)
 
 --\\ Module //--
@@ -24,8 +23,6 @@ export type ThreadPool = typeof(ThreadPool) & {
 	_returnResults: {},
 }
 
-type SharedTable = SharedTypes.SharedTable
-SharedTable = SharedTable :: SharedTable
 type Thread = Thread.Thread
 
 --\\ Private //--

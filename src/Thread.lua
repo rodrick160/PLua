@@ -43,9 +43,9 @@ type SharedTable = SharedTypes.SharedTable
 --\\ Private //--
 
 local nextThreadId = 1
-local threadStatuses = SharedTable.new()
+local threadStatuses: SharedTable = SharedTable.new()
 SharedTableRegistry:SetSharedTable("ThreadStatuses", threadStatuses)
-local threadReturnValues = SharedTable.new()
+local threadReturnValues: SharedTable = SharedTable.new()
 SharedTableRegistry:SetSharedTable("ThreadReturnValues", threadReturnValues)
 
 --[[
@@ -126,6 +126,7 @@ function Thread:Join(yield: boolean?): (boolean, any...)
 		self._statusChanged.Event:Wait()
 	end
 	local sharedReturnValue = threadReturnValues[self._threadId]
+	-- selene: allow(manual_table_clone)
 	local returnValue = {}
 	for i, v in sharedReturnValue do
 		returnValue[i] = v

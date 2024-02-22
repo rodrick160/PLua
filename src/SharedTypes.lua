@@ -22,6 +22,7 @@ export type SharedTable = {
 	isFrozen: (st: SharedTable) -> boolean,
 	size: (st: SharedTable) -> number,
 	update: (st: SharedTable, key: string | number, f: (any...) -> (any...)) -> (),
+	[any]: any,
 }
 
 --\\ Return //--
