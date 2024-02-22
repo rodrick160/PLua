@@ -14,7 +14,7 @@ Threads can be in one of three states:
 	The thread is actively executing code. In the running state, the thread cannot be dispatched, joined, or destroyed.
 
 > [!TIP]
-> To create a Thread object, call [`PLua.CreateThread()`](/README.md#pluacreatethreadpooln-number-module-modulescript-threadpool).
+> To create a Thread object, call [`PLua.CreateThread()`](/README.md#createthread).
 
 ## Run
 

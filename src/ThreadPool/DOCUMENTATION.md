@@ -3,7 +3,7 @@
 Thread pools are a collection of threads, all of which are identical except for their unique thread index.
 
 > [!TIP]
-> To create a ThreadPool object, call [`PLua.CreateThreadPool()`](/README.md#pluacreatethreadmodule-modulescript-thread).
+> To create a ThreadPool object, call [`PLua.CreateThreadPool()`](/README.md#createthreadpool).
 
 ## Run
 
