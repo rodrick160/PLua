@@ -3,6 +3,7 @@
 # Install
 ## Wally
 Installing with [Wally](https://github.com/UpliftGames/wally) is recommended.
+
 `rodrick160/plua@1.0.2`
 
 # Description
@@ -23,7 +24,7 @@ which contains the code to be executed by the thread. In the case of a thread po
 thread pools can then be dispatched to execute their code, and optionally (but usually) joined back into serial execution. If the thread returns one
 or more values, they can be retrieved by joining them.
 
-Modules given to threads are expected to have a Run(...) method. This function will be called when the thread is dispatched. If the thread is part of
+Modules given to threads are expected to have a `Run(...)` method. This function will be called when the thread is dispatched. If the thread is part of
 a thread pool, it will be assigned a thread index; a number from 1 to n where n is the number of threads in the thread pool. Upon creation of the thread
 pool, each thread's module will be required, and the thread index will be assigned to the ThreadIndex field of the module.
 Example use case:
@@ -48,7 +49,7 @@ return TerrainGenerator
 ## Thread
 
 > [!WARNING]
-> Thread objects do not automatically clean themselves; call :Destroy() on Thread objects if they are no longer used.
+> Thread objects do not automatically clean themselves; call `:Destroy()` on Thread objects if they are no longer used.
 
 ### `PLua.CreateThread(module: ModuleScript): Thread`
 Creates a single thread.
