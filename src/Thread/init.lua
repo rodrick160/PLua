@@ -6,12 +6,12 @@
 	Threads are an isolated line of code execution that can run in parallel to other threads.
 
 	All threads have a state value which represents what the thread is currently doing. The state of the thread affects what actions can be performed with it.
-	The state of a thread can be accessed by calling Thread:State().
+	The state of a thread can be accessed by calling `Thread:Status()`.
 	Threads can be in one of three states:
 	- new:
 		The thread has just been created and is still being initialized. The thread is not yet ready to begin executing code.
 	    The thread will be in the new state immediately upon creation, and will remain in the new state until the next resumption cycle.
-		If Thread:Run() is called while the thread is in the new state, the function will yield until the status changes to suspended.
+		If `Thread:Run()` is called while the thread is in the new state, the function will yield until the status changes to suspended.
 	- suspended:
 		The thread is idle, not executing any code, not initializing itself, and is ready to be dispatched.
 	- running:
