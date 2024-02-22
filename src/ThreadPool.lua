@@ -28,11 +28,18 @@ type Thread = Thread.Thread
 --\\ Private //--
 
 --[[
-	ThreadPool constructor.
+	# _new
 
-	Parameters:
-	`{Thread} threads`: An array of the threads the thread pool will contain.
+	## Description
+	`ThreadPool` constructor.
+
+	## Parameters
+	- `threads: {Thread}` - An array of the threads the thread pool will contain.
+
+	## Return Value
+	Returns a newly constructed `ThreadPool` object.
 ]]
+---@private
 function ThreadPool._new(threads: {Thread}): ThreadPool
     local self = {}
     setmetatable(self, ThreadPool)
@@ -54,14 +61,22 @@ end
 --\\ Public //--
 
 --[[
+	# Run
+
+	## Description
 	Attempts to dispatch all threads in the thread pool.
-	If any threads in the pool are running, dispatching fails immediately.
 
-	If any thread is in the new state, the function yields until it leaves the new state.
+	## Parameters
+	- `...: any...` - A list of parameters to pass to the thread modules' `Run()` function.
 
-	Arguments passed to `Run()` will be passed to the `Run()` function of the thread module.
-
+	## Return Value
 	Returns a boolean indicating if the threads were successfully dispatched.
+
+	> [!IMPORTANT]
+	> If any thread is in the new state, the function yields until it leaves the new state.
+
+	> [!IMPORTANT]
+	> If any thread is running, dispatching will fail for all threads.
 ]]
 function ThreadPool:Run(...: any...): boolean
     for _, thread in self._threads do
@@ -76,14 +91,20 @@ function ThreadPool:Run(...: any...): boolean
 end
 
 --[[
-	Attempts to join all threads back into serial execution.
+	# JoinAll
 
-	The `yield` flag follows the same rules as in `Thread:Join()`, except it will `yield` until all
-	threads in the pool are joined.
+	## Description
+	Attempts to join all threads in the pool back into serial execution.
 
-	Returns a flag indicating if the threads were successfully joined.
-	If the `yield` flag is enabled, this success flag will always be true. This flag will
-	only be false if the `yield` flag is not enabled and at least one thread is not suspended.
+	## Parameters
+	- `yield: boolean` (optional) - If true, yields until all threads are suspended.
+
+	## Return Value
+	A `boolean` flag indicating if the threads were successfully joined.
+
+	> [!TIP]
+	> If the `yield` flag is enabled, the success flag will always be `true`.
+	> The success flag will only be `false` if the `yield` flag is not enabled and a thread is not suspended.
 ]]
 function ThreadPool:JoinAll(yield: boolean?): boolean
     for _, thread in self._threads do
@@ -97,12 +118,27 @@ function ThreadPool:JoinAll(yield: boolean?): boolean
 end
 
 --[[
-	Functions similarly to `JoinAll()`, except the requirement for success changes from all threads
-	successfully joining, to only `n` threads needing to join.
+	# JoinAtLeast
+
+	## Description
+	Attempts to join a minimum number of threads in the pool back into serial execution.
+
+	## Parameters
+	- `n: number` - The minimum number of threads to be joined.
+	- `yield: boolean` (optional) - If true, yields until the join requirements are met.
+
+	## Return Value
+	A `boolean` flag indicating if the threads were successfully joined.
+
+	> [!TIP]
+	> If the `yield` flag is enabled, the success flag will always be `true`.
+	> The success flag will only be `false` if the `yield` flag is not enabled and less than `n` threads are suspended.
 ]]
 function ThreadPool:JoinAtLeast(n: number, yield: boolean?): boolean
 	if n <= 0 then
 		error("JoinAtLeast() arg 1 must be > 0.", 2)
+	elseif n > self:Size() then
+		error("JoinAtLeast() arg 1 must be <= thread count.", 2)
 	end
 
 	repeat
@@ -131,11 +167,23 @@ function ThreadPool:JoinAtLeast(n: number, yield: boolean?): boolean
 end
 
 --[[
+	# GetJoinResult
+
+	## Description
 	Returns any values returned by `Thread:Join()`, including the success flag.
 
-	`threadIndex` is used to select which thread in the pool to retrieve the return value(s) of.
+	## Parameters
+	- `threadIndex: number` - Selects which thread in the pool to retrieve the return values of.
 
-	If the thread has not yet joined, or failed to join, the success flag will be false.
+	## Return Value
+	- A `boolean` flag indicating if the thread is successfully joined.
+	- Any values returned from the thread module's `Run()` function.
+
+	> [!IMPORTANT]
+	> If the thread has not yet joined, or failed to join, the success flag will be false.
+
+	> [!CAUTION]
+	> The behavior of calling `GetJoinResult()` after getting a `false` success flag from `JoinAll()` or `JoinAtLeast()` is undefined.
 ]]
 function ThreadPool:GetJoinResult(threadIndex: number): (boolean, ...any)
 	if not self._returnResults[threadIndex] or not self._returnResults[threadIndex][1] then
@@ -145,19 +193,30 @@ function ThreadPool:GetJoinResult(threadIndex: number): (boolean, ...any)
 end
 
 --[[
+	# Size
+
+	## Description
 	Returns the number of threads contained in the thread pool.
+
+	## Return Value
+	A `number` indicating the numebr of threads contained in the thread pool.
 ]]
 function ThreadPool:Size(): number
 	return #self._threads
 end
 
 --[[
-	Attempts to destroy the thread pool and clean up its used memory.
+	# Destroy
 
-	If any thread contained in the pool is running, destruction will fail.
-	If necessary, use JoinAll(true) to yield until destruction is permitted.
+	# Description
+	Attempts to destroy the thread pool and all of its threads, and clean up their used memory.
 
-	Returns a flag indicating if destruction was successful.
+	# Return Value
+	Returns a `boolean` flag indicating if destruction was successful.
+
+	> [!CAUTION]
+	> If any thread is running, destruction will fail.
+	> If necessary, use `JoinAll(true)` to yield until destruction is permitted.
 ]]
 function ThreadPool:Destroy(): boolean
     for _, thread in self._threads do

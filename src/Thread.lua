@@ -49,12 +49,20 @@ local threadReturnValues: SharedTable = SharedTable.new()
 SharedTableRegistry:SetSharedTable("ThreadReturnValues", threadReturnValues)
 
 --[[
-	Thread constructor.
+	# _new
 
-	Parameters:
-	Actor actor: The Actor instance the thread will run under.
-	number? threadIndex: The thread index assigned to the thread, if it is part of a thread pool.
+	## Description
+	`Thread` constructor.
+
+	## Parameters
+	- `actor: Actor` - The Actor instance the thread will run under.
+	- `module: ModuleScript` - The module script containing the code for the thread to execute.
+	- `threadIndex: number` (optional) - The thread index assigned to the thread, if it is part of a thread pool.
+
+	## Return Value
+	Returns a newly constructed `Thread` object.
 ]]
+---@private
 function Thread._new(actor: Actor, module: ModuleScript, threadIndex: number?): Thread
     local self = {}
     setmetatable(self, Thread)
@@ -84,14 +92,22 @@ end
 --\\ Public //--
 
 --[[
+	# Run
+
+	## Description
 	Dispatches the thread and begins code execution.
 
-	If the thread is in the new state, the function yields until it leaves the new state.
-	Otherwise, if the thread is not suspended (i.e. the thread is running), dispatching will fail.
+	## Parameters
+	- `...: any...` - A list of parameters to pass to the thread module's `Run()` function.
 
-	Arguments passed to Run() will be passed to the Run() function of the thread module.
-
+	## Return Value
 	Returns a boolean indicating if the thread was successfully dispatched.
+
+	> [!IMPORTANT]
+	> If the thread is in the new state, the function yields until it leaves the new state.
+
+	> [!IMPORTANT]
+	> If the thread is running, dispatching will fail.
 ]]
 function Thread:Run(...: any...): boolean
 	while self:Status() == "new" do
@@ -106,19 +122,20 @@ function Thread:Run(...: any...): boolean
 end
 
 --[[
+	# Join
+
+	## Description
 	Attempts to join the thread back into serial execution.
 
-	An optional yield flag can be passed. If this flag is enabled, and the thread is not
-	suspended, the function will yield until the thread enters the suspended state. If the
-	thread is suspended upon calling this function, the yield flag does nothing and the
-	function will not yield.
+	## Parameters
+	- `yield: boolean` (optional) - If true, yields until the thread is suspended.
+	## Return Value
+	- A `boolean` flag indicating if the thread was successfully joined.
+	- Any values returned from the thread module's `Run()` function.
 
-	Returns a tuple beginning with flag indicating if the thread was successfully joined.
-	If the yield flag is enabled, this success flag will always be true. This flag will
-	only be false if the yield flag is not enabled and the thread is not suspended.
-
-	Following the success flag, the tuple contains any values returned from the thread module's
-	Run() function.
+	> [!TIP]
+	> If the `yield` flag is enabled, the success flag will always be `true`.
+	> The success flag will only be `false` if the `yield` flag is not enabled and the thread is not suspended.
 ]]
 function Thread:Join(yield: boolean?): (boolean, any...)
 	while self:Status() ~= "suspended" do
@@ -135,12 +152,17 @@ function Thread:Join(yield: boolean?): (boolean, any...)
 end
 
 --[[
+	# Destroy
+
+	# Description
 	Attempts to destroy the thread and clean up its used memory.
 
-	If the thread is running, destruction will fail.
-	If necessary, use Join(true) to yield until destruction is permitted.
+	# Return Value
+	Returns a `boolean` flag indicating if destruction was successful.
 
-	Returns a flag indicating if destruction was successful.
+	> [!CAUTION]
+	> If the thread is running, destruction will fail.
+	> If necessary, use `Join(true)` to yield until destruction is permitted.
 ]]
 function Thread:Destroy(): boolean
     if self:Status() ~= "running" then
@@ -154,8 +176,16 @@ function Thread:Destroy(): boolean
 end
 
 --[[
-	Returns the current status of the thread as a string:
-	"new", "suspended", or "running".
+	# Status
+
+	## Description
+	Returns a string describing the current status of the thread.
+
+	## Return Value
+	One of the following strings:
+	- `"new"` - The thread has just been created and is initializing.
+	- `"suspended"` - The thread is not currently running.
+	- `"running"` - The thread is currently running.
 ]]
 function Thread:Status(): string
     return threadStatuses[self._threadId]
