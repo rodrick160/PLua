@@ -1,3 +1,5 @@
+![PLua logo](logo/Small/PLua_Banner.png)
+
 # Install
 ## Wally
 Installing with [Wally](https://github.com/UpliftGames/wally) is recommended.
