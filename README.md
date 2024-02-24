@@ -21,7 +21,7 @@ or more values, they can be retrieved by joining them.
 
 Modules given to threads are expected to have a `Run(...)` method. This function will be called when the thread is dispatched. If the thread is part of
 a thread pool, it will be assigned a thread index; a number from 1 to `n` where `n` is the number of threads in the thread pool. Upon creation of the thread
-pool, each thread's module will be required, and the thread index will be assigned to the ThreadIndex field of the module.
+pool, each thread's module will be required, and the thread index will be assigned to the `ThreadIndex` field of the module.
 Example use case:
 
 ```lua
